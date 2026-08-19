@@ -111,21 +111,18 @@ function newSessionId(){return crypto.randomUUID?crypto.randomUUID():Date.now().
 document.querySelector('#start').addEventListener('click',()=>{analytics.sessionId=newSessionId();analytics.startAt=Date.now();analytics.setNo=0;analytics.rerollCount=0;track('session_start')},{capture:true});
 document.querySelector('#recommend').addEventListener('click',()=>{if(!conditionsReady())return;const key=state.c+'|'+state.m+'|'+state.b;if(key===lastSubmitted)return;lastSubmitted=key;track('condition_submit',{companion:state.c,mood:state.m,budget:state.b})},{capture:true});
 
-const baseShowResults = showResults;
+analytics.setNo += 1;
 
-showResults = function() {
-    baseShowResults();
-
-    analytics.setNo += 1;
-
-    track('recommend_view', {
-        set_no: analytics.setNo,
-        menu_1: shown[0]?.name || '',
-        menu_2: shown[1]?.name || '',
-        menu_3: shown[2]?.name || ''
-    });
-};
-document.addEventListener('click',event=>{const reason=event.target.closest('.reason');if(reason){analytics.rerollCount+=1;track('reroll',{reroll_reason:reason.textContent,reroll_set_no:analytics.setNo})}const completeButton=event.target.closest('#complete');if(completeButton&&chosen&&analytics.startAt){track('menu_selected',{selected_menu:chosen.name,decision_sec:Math.round((Date.now()-analytics.startAt)/1000),reroll_count:analytics.rerollCount})}const feedbackButton=event.target.closest('.feedback:not(.reason)');if(feedbackButton){track('feedback_submit', {feedback: feedbackButton.dataset.f});}},{capture:true});
+track('recommend_view', {
+    recommendation_set: shown.map(menu => ({
+        id: menu.id,
+        name: menu.name
+    })),
+    set_no: analytics.setNo
+});
+document.addEventListener('click',event=>{const reason=event.target.closest('.reason');if(reason){analytics.rerollCount+=1;track('reroll',{reroll_reason:reason.textContent,reroll_set_no:analytics.setNo})}const completeButton=event.target.closest('#complete');if(completeButton&&chosen&&analytics.startAt){track('menu_selected',{selected_menu:chosen.name,decision_sec:Math.round((Date.now()-analytics.startAt)/1000),reroll_count:analytics.rerollCount})}const feedbackButton=event.target.closest('.feedback:not(.reason)');if(feedbackButton){track('feedback_submit', {
+    feedback: feedbackButton.dataset.f === '만족' ? 1 : 0
+});}},{capture:true});
 document.querySelector('#recommend').onclick=requestRecommendation;
 document.addEventListener('click',event=>{if(!event.target.closest('#close'))return;const start=document.querySelector('#start-screen');start.classList.remove('screen-out');start.classList.add('screen-in')},{capture:true});
 </script></body></html>
