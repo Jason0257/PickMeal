@@ -20,7 +20,7 @@
 <body><header><div class="logo">Pick<b>Meal</b></div><span class="note">&#50724;&#45720;&#51032; &#47700;&#45684;&#47484; &#44256;&#47476;&#49464;&#50836;</span></header><main>
 <section id="start-screen"><h1>오늘 뭐 먹지?</h1><button class="primary" id="start">&#49884;&#51089;&#54616;&#44592;</button></section>
 <section id="recommend-screen" class="hidden"><div class="hero"><h1>&#45208;&#50640;&#44172; &#47582;&#45716; <span class="accent">&#54620; &#45180;</span></h1><p>&#51312;&#44148;&#51012; &#44256;&#47476;&#44256; &#52628;&#52380;&#48155;&#50500;&#48372;&#49464;&#50836;.</p></div>
-<section class="filters"><div class="filter-row"><b>&#46041;&#54665;</b><div class="chips" data-key="c"><button class="chip" data-v="a">&#54844;&#51088;</button><button class="chip" data-v="f">&#52828;&#44396;</button><button class="chip" data-v="l">&#50672;&#51064;</button><button class="chip" data-v="w">&#46041;&#47308;</button></div></div><div class="filter-row"><b>&#45712;&#45196;</b><div class="chips" data-key="m"><button class="chip" data-v="full">&#46304;&#46304;</button><button class="chip" data-v="light">&#44032;&#48316;&#50880;</button><button class="chip" data-v="hot">&#47588;&#53092;</button><button class="chip" data-v="new">&#49352;&#47196;&#50868;&#44163;</button></div></div><div class="filter-row"><b>&#50696;&#49328;</b><div class="chips" data-key="b"><button class="chip selected" data-v="any">&#49345;&#44288;&#50630;&#51020;</button><button class="chip" data-v="low">1&#47564;&#50896; &#51060;&#54616;</button><button class="chip" data-v="mid">1~2&#47564;&#50896;</button></div></div><div class="actions"><button id="recommend" class="primary">3&#44060; &#47700;&#45684; &#52628;&#52380;&#48155;&#44592;</button></div></section>
+<section class="filters"><div class="filter-row"><b>&#46041;&#54665;</b><div class="chips" data-key="c"><button class="chip" data-v="a">&#54844;&#51088;</button><button class="chip" data-v="f">&#52828;&#44396;</button><button class="chip" data-v="l">&#50672;&#51064;</button><button class="chip" data-v="w">&#46041;&#47308;</button></div></div><div class="filter-row"><b>&#45712;&#45196;</b><div class="chips" data-key="m"><button class="chip" data-v="full">&#46304;&#46304;</button><button class="chip" data-v="light">&#44032;&#48316;&#50880;</button><button class="chip" data-v="hot">&#47588;&#53092;</button></div></div><div class="filter-row"><b>&#50696;&#49328;</b><div class="chips" data-key="b"><button class="chip selected" data-v="any">&#49345;&#44288;&#50630;&#51020;</button><button class="chip" data-v="low">1&#47564;&#50896; &#51060;&#54616;</button><button class="chip" data-v="mid">1~2&#47564;&#50896;</button></div></div><div class="actions"><button id="recommend" class="primary">3&#44060; &#47700;&#45684; &#52628;&#52380;&#48155;&#44592;</button></div></section>
 <section id="results" class="hidden"><div class="result-head"><h2>&#50612;&#46500;&#44172; &#47560;&#51020;&#50640; &#46300;&#49884;&#45208;&#50836;?</h2><span class="note" id="result-note">&#54616;&#45208;&#47484; &#49440;&#53469;&#54644;&#48372;&#49464;&#50836;</span></div><div id="cards" class="cards"></div></section></section>
 </main>
 <div id="modal" class="hidden" role="dialog" aria-modal="true"><div class="modal-box" id="modal-content"></div></div><div id="toast"></div>
@@ -29,7 +29,7 @@ const SUPABASE_URL = 'https://znlogzfrocdgjhyquqom.supabase.co';  // Supabase AP
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpubG9nemZyb2NkZ2poeXF1cW9tIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY5NDYzNTUsImV4cCI6MjEwMjUyMjM1NX0.5q5FpBwYx8-kgzXty5K7Vlst4AdrnnQNwb-qltypOBk';       // Supabase API 설정에서 복사
 const _supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-const C={a:'\ud63c\uc790',f:'\uce5c\uad6c',l:'\uc5f0\uc778',w:'\ub3d9\ub8cc'},M={full:'\ub4e0\ub4e0',light:'\uac00\ubcbc\uc6c0',hot:'\ub9e4\ucf64',new:'\uc0c8\ub85c\uc6b4\uac83'},B={low:'1\ub9cc\uc6d0\uc774\ud558',mid:'1~2\ub9cc\uc6d0'};
+const C={a:'\ud63c\uc790',f:'\uce5c\uad6c',l:'\uc5f0\uc778',w:'\ub3d9\ub8cc'},M={full:'\ub4e0\ub4e0',light:'\uac00\ubcbc\uc6c0',hot:'\ub9e4\ucf64'},B={low:'1\ub9cc\uc6d0\uc774\ud558',mid:'1~2\ub9cc\uc6d0'};
 const menus=[
 {name:'김치찌개',emoji:'🍲',bg:'#FDE7D4',c:['a','f','w'],m:['full','hot'],b:['low']},
 {name:'제육덮밥',emoji:'🍖',bg:'#FDE7D4',c:['a','f','w'],m:['full','hot'],b:['low']},
@@ -44,27 +44,27 @@ const menus=[
 {name:'떡볶이',emoji:'🌶️',bg:'#FDE7D4',c:['a','f','l'],m:['hot','light'],b:['low']},
 {name:'보쌈',emoji:'🥬',bg:'#FDE7D4',c:['f','l','w'],m:['full'],b:['mid']},
 {name:'돈까스',emoji:'🍱',bg:'#E3EEF7',c:['a','f','l','w'],m:['full'],b:['low','mid']},
-{name:'초밥',emoji:'🍣',bg:'#E3EEF7',c:['f','l','w'],m:['light','new'],b:['mid']},
+{name:'초밥',emoji:'🍣',bg:'#E3EEF7',c:['f','l','w'],m:['light'],b:['mid']},
 {name:'라멘',emoji:'🍜',bg:'#E3EEF7',c:['a','f','l'],m:['full','hot'],b:['low','mid']},
 {name:'우동',emoji:'🍲',bg:'#E3EEF7',c:['a','f','w'],m:['light'],b:['low']},
 {name:'규동',emoji:'🍚',bg:'#E3EEF7',c:['a','w'],m:['full'],b:['low']},
-{name:'오므라이스',emoji:'🍳',bg:'#E3EEF7',c:['a','f','l','w'],m:['full','new'],b:['low','mid']},
+{name:'오므라이스',emoji:'🍳',bg:'#E3EEF7',c:['a','f','l','w'],m:['full'],b:['low','mid']},
 {name:'짜장면',emoji:'🍜',bg:'#FADADA',c:['a','f','w'],m:['full'],b:['low']},
 {name:'짬뽕',emoji:'🍲',bg:'#FADADA',c:['a','f','w'],m:['hot','full'],b:['low']},
-{name:'마라탕',emoji:'🌶️',bg:'#FADADA',c:['a','f','l'],m:['hot','new'],b:['low','mid']},
-{name:'마라샹궈',emoji:'🥘',bg:'#FADADA',c:['f','l','w'],m:['hot','new'],b:['mid']},
-{name:'탕수육',emoji:'🍤',bg:'#FADADA',c:['f','l','w'],m:['full','new'],b:['mid']},
+{name:'마라탕',emoji:'🌶️',bg:'#FADADA',c:['a','f','l'],m:['hot'],b:['low','mid']},
+{name:'마라샹궈',emoji:'🥘',bg:'#FADADA',c:['f','l','w'],m:['hot'],b:['mid']},
+{name:'탕수육',emoji:'🍤',bg:'#FADADA',c:['f','l','w'],m:['full'],b:['mid']},
 {name:'볶음밥',emoji:'🍚',bg:'#FADADA',c:['a','f','w'],m:['full'],b:['low']},
-{name:'파스타',emoji:'🍝',bg:'#E5F0E3',c:['f','l','w'],m:['light','new'],b:['mid']},
+{name:'파스타',emoji:'🍝',bg:'#E5F0E3',c:['f','l','w'],m:['light'],b:['mid']},
 {name:'햄버거',emoji:'🍔',bg:'#E5F0E3',c:['a','f','l'],m:['full'],b:['low','mid']},
-{name:'피자',emoji:'🍕',bg:'#E5F0E3',c:['f','l','w'],m:['full','new'],b:['mid']},
-{name:'샐러드',emoji:'🥗',bg:'#E5F0E3',c:['a','f','l'],m:['light','new'],b:['low','mid']},
-{name:'스테이크',emoji:'🥩',bg:'#E5F0E3',c:['l','w'],m:['full','new'],b:['mid']},
-{name:'리조또',emoji:'🍚',bg:'#E5F0E3',c:['l','w'],m:['full','new'],b:['mid']},
-{name:'쌀국수',emoji:'🍜',bg:'#FBF0D9',c:['a','f','l','w'],m:['light','new'],b:['low','mid']},
-{name:'팟타이',emoji:'🍤',bg:'#FBF0D9',c:['f','l','w'],m:['new','light'],b:['mid']},
-{name:'커리',emoji:'🍛',bg:'#FBF0D9',c:['a','f','l','w'],m:['full','new','hot'],b:['low','mid']},
-{name:'연어포케',emoji:'🥗',bg:'#FBF0D9',c:['a','f','l'],m:['light','new'],b:['mid']}
+{name:'피자',emoji:'🍕',bg:'#E5F0E3',c:['f','l','w'],m:['full'],b:['mid']},
+{name:'샐러드',emoji:'🥗',bg:'#E5F0E3',c:['a','f','l'],m:['light'],b:['low','mid']},
+{name:'스테이크',emoji:'🥩',bg:'#E5F0E3',c:['l','w'],m:['full'],b:['mid']},
+{name:'리조또',emoji:'🍚',bg:'#E5F0E3',c:['l','w'],m:['full'],b:['mid']},
+{name:'쌀국수',emoji:'🍜',bg:'#FBF0D9',c:['a','f','l','w'],m:['light'],b:['low','mid']},
+{name:'팟타이',emoji:'🍤',bg:'#FBF0D9',c:['f','l','w'],m:['light'],b:['mid']},
+{name:'커리',emoji:'🍛',bg:'#FBF0D9',c:['a','f','l','w'],m:['full','hot'],b:['low','mid']},
+{name:'연어포케',emoji:'🥗',bg:'#FBF0D9',c:['a','f','l'],m:['light'],b:['mid']}
 ].map((x,i)=>({...x,id:i+1,tags:[...x.m.slice(0,2).map(k=>M[k]),B[x.b[0]]]}));
 const state={c:null,m:null,b:'any'},cards=document.querySelector('#cards'),modal=document.querySelector('#modal'),modalContent=document.querySelector('#modal-content');let shown=[],seen=[],exhausted=false,chosen,hasRecommended=false,lastSubmitted=null,shownWith=null;
 const mix=x=>{const a=[...x];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a},ok=(menu,keys)=>keys.every(k=>state[k]==='any'||menu[k].includes(state[k]));
