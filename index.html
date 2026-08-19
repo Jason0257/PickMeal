@@ -67,7 +67,17 @@ const menus=[
 const state={c:null,m:null,b:'any'},cards=document.querySelector('#cards'),modal=document.querySelector('#modal'),modalContent=document.querySelector('#modal-content');let shown=[],seen=[],exhausted=false,chosen,hasRecommended=false,lastSubmitted=null;
 const mix=x=>{const a=[...x];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a},ok=(menu,keys)=>keys.every(k=>state[k]==='any'||menu[k].includes(state[k]));
 function three(){const exact=mix(menus.filter(x=>ok(x,['c','m','b']))),relaxed=mix(menus.filter(x=>ok(x,['c','m'])&&!exact.includes(x))),pool=[...exact,...relaxed];const fresh=pool.filter(x=>!seen.includes(x));exhausted=seen.length>0&&fresh.length<3;let pick;if(fresh.length>=3){pick=fresh.slice(0,3)}else{pick=[...fresh,...seen.filter(x=>pool.includes(x))].slice(0,3);seen=seen.filter(x=>!pool.includes(x))}if(pick.length<3){const rest=menus.filter(x=>!pick.includes(x));pick=[...pick,...mix(rest.filter(x=>!seen.includes(x))),...mix(rest)].slice(0,3)}seen=[...seen,...pick.filter(x=>!seen.includes(x))];return pick}
-function showResults(){shown=three();document.querySelector('#result-note').textContent=exhausted?'조건에 맞는 메뉴를 모두 보여드렸어요. 조건을 바꿔보세요.':'하나를 선택해보세요';cards.innerHTML=shown.map((x,i)=>`<button class="card" style="animation-delay:${i*.11}s" data-id="${x.id}"><div class="thumb" style="background:${x.bg}" aria-hidden="true">${x.emoji}</div><div class="card-body"><h3>${x.name}</h3><div class="card-tags">${x.tags.map(t=>`<span class="tag">#${t}</span>`).join('')}</div></div></button>`).join('');document.querySelector('#results').classList.remove('hidden');requestAnimationFrame(()=>document.querySelectorAll('.card').forEach(x=>x.classList.add('enter')));document.querySelector('#results').scrollIntoView({behavior:'smooth',block:'start'})}
+function showResults(){shown=three();
+    analytics.setNo += 1;
+
+track('recommend_view', {
+    recommendation_set: shown.map(menu => ({
+        id: menu.id,
+        name: menu.name
+    })),
+    set_no: analytics.setNo
+});
+document.querySelector('#result-note').textContent=exhausted?'조건에 맞는 메뉴를 모두 보여드렸어요. 조건을 바꿔보세요.':'하나를 선택해보세요';cards.innerHTML=shown.map((x,i)=>`<button class="card" style="animation-delay:${i*.11}s" data-id="${x.id}"><div class="thumb" style="background:${x.bg}" aria-hidden="true">${x.emoji}</div><div class="card-body"><h3>${x.name}</h3><div class="card-tags">${x.tags.map(t=>`<span class="tag">#${t}</span>`).join('')}</div></div></button>`).join('');document.querySelector('#results').classList.remove('hidden');requestAnimationFrame(()=>document.querySelectorAll('.card').forEach(x=>x.classList.add('enter')));document.querySelector('#results').scrollIntoView({behavior:'smooth',block:'start'})}
 function conditionsReady(){return state.c!==null&&state.m!==null}
 function requestRecommendation(){if(!conditionsReady()){toast('\ub3d9\ud589\uacfc \ub290\ub08c\uc744 \uc120\ud0dd\ud574\uc8fc\uc138\uc694');return}if(!hasRecommended){hasRecommended=true;document.querySelector('#recommend').textContent='\ub2e4\uc2dc \ucd94\ucc9c\ubc1b\uae30';showResults();return}openReason()}
 function openReason(){modalContent.innerHTML=`<h2>\uc7ac\ucd94\ucc9c \uc774\uc720</h2><p>\uc65c \ub2e4\uc2dc \ucd94\ucc9c\ubc1b\uace0 \uc2f6\uc73c\uc2e0\uac00\uc694?</p><div class="feedback-row"><button class="feedback reason">\ucd94\ucc9c \uba54\ub274\uac00 \ubcc4\ub85c\uc5d0\uc694</button><button class="feedback reason">\uc608\uc0b0\uc774 \uc548 \ub9de\uc544\uc694</button><button class="feedback reason">\uc624\ub298 \uae30\ubd84\uc774 \uc544\ub2c8\uc5d0\uc694</button></div>`;openModal();document.querySelectorAll('.reason').forEach(button=>button.onclick=()=>{closeModal();setTimeout(showResults,230)})}
@@ -111,15 +121,7 @@ function newSessionId(){return crypto.randomUUID?crypto.randomUUID():Date.now().
 document.querySelector('#start').addEventListener('click',()=>{analytics.sessionId=newSessionId();analytics.startAt=Date.now();analytics.setNo=0;analytics.rerollCount=0;track('session_start')},{capture:true});
 document.querySelector('#recommend').addEventListener('click',()=>{if(!conditionsReady())return;const key=state.c+'|'+state.m+'|'+state.b;if(key===lastSubmitted)return;lastSubmitted=key;track('condition_submit',{companion:state.c,mood:state.m,budget:state.b})},{capture:true});
 
-analytics.setNo += 1;
 
-track('recommend_view', {
-    recommendation_set: shown.map(menu => ({
-        id: menu.id,
-        name: menu.name
-    })),
-    set_no: analytics.setNo
-});
 document.addEventListener('click',event=>{const reason=event.target.closest('.reason');if(reason){analytics.rerollCount+=1;track('reroll',{reroll_reason:reason.textContent,reroll_set_no:analytics.setNo})}const completeButton=event.target.closest('#complete');if(completeButton&&chosen&&analytics.startAt){track('menu_selected',{selected_menu:chosen.name,decision_sec:Math.round((Date.now()-analytics.startAt)/1000),reroll_count:analytics.rerollCount})}const feedbackButton=event.target.closest('.feedback:not(.reason)');if(feedbackButton){track('feedback_submit', {
     feedback: feedbackButton.dataset.f === '만족' ? 1 : 0
 });}},{capture:true});
