@@ -96,7 +96,12 @@ async function track(event_type, fields = {}) {
     // Google Analytics 4
     // =========================
     if (typeof gtag === 'function') {
-        gtag('event', event_type, fields);
+        const gaFields = { ...fields };
+        if (Array.isArray(gaFields.recommendation_set)) {
+            gaFields.recommendation_names = gaFields.recommendation_set.map(m => m.name).join(', ');
+            delete gaFields.recommendation_set; // 배열 데이터는 GA4에서 전송 제외
+        }
+        gtag('event', event_type, gaFields);
     }
 
     // =========================
