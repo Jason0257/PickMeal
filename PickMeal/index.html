@@ -8,7 +8,9 @@
 
   gtag('config', 'G-S58ERK069N');
 </script><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>PickMeal</title>
+<title>PickMeal - 오늘 뭐 먹지? 점심 저녁 메뉴 추천</title>
+<meta name="description" content="혼밥, 데이트, 회식 등 상황과 기분, 예산에 맞는 완벽한 점심, 저녁 메뉴를 추천해 드립니다. 지금 바로 맞춤 메뉴를 확인해보세요.">
+<meta name="keywords" content="메뉴 추천, 오늘 뭐 먹지, 점심 메뉴, 저녁 메뉴, 음식 추천, PickMeal">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 :root{--ink:#202735;--muted:#6d7480;--paper:#fffaf4;--accent:#f97316;--pale:#fff0e5;--line:#e9dfd4;font-family:system-ui,sans-serif;color:var(--ink);background:var(--paper)}*{box-sizing:border-box}body{margin:0;min-width:320px}button{font:inherit;cursor:pointer}.hidden{display:none!important}header{height:68px;padding:0 clamp(20px,6vw,92px);display:flex;justify-content:space-between;align-items:center;background:#fff;border-bottom:1px solid var(--line)}.logo{font-size:1.35rem;font-weight:900}.logo b,.accent{color:var(--accent)}main{max-width:1080px;min-height:calc(100vh - 68px);margin:auto;padding:clamp(35px,7vw,76px) 20px}.screen-out{animation:fadeOut .32s ease forwards}.screen-in{animation:fadeIn .38s ease both}@keyframes fadeOut{to{opacity:0;transform:translateY(-12px)}}@keyframes fadeIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}#start-screen{min-height:calc(100vh - 68px);display:grid;place-content:center;text-align:center}#start-screen h1{margin:0 0 28px;font-size:clamp(3rem,9vw,5.4rem);letter-spacing:-.08em}.primary{border:0;border-radius:13px;padding:15px 27px;color:#fff;background:var(--ink);font-weight:800;transition:.18s}.primary:hover{background:#111827;transform:translateY(-2px)}.hero{text-align:center;margin:0 auto 35px}.hero h1{font-size:clamp(2rem,5vw,3.5rem);letter-spacing:-.06em;margin:0 0 12px}.hero p,.note{margin:0;color:var(--muted)}.filters{padding:23px;background:#fff;border:1px solid var(--line);border-radius:23px;box-shadow:0 12px 30px #2d1b0910}.filter-row{display:grid;grid-template-columns:82px 1fr;gap:14px;align-items:center;padding:10px 0}.filter-row+.filter-row{border-top:1px solid #f1ebe4}.filter-label{font-weight:800}.chips{display:flex;gap:8px;flex-wrap:wrap}.chip{border:1px solid #ded6cc;border-radius:99px;padding:8px 12px;background:#fff}.chip.selected{color:#fff;border-color:var(--accent);background:var(--accent)}.actions{text-align:center;margin-top:20px}.result-head{display:flex;justify-content:space-between;align-items:end;margin:46px 0 18px}.result-head h2{margin:0;font-size:1.45rem}.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:17px}.card{padding:0;overflow:hidden;text-align:left;color:inherit;border:1px solid var(--line);border-radius:18px;background:#fff;opacity:0;transform:translateY(28px)}.card.enter{animation:cardUp .33s cubic-bezier(.2,.8,.2,1) forwards}@keyframes cardUp{to{opacity:1;transform:none}}.card:hover{box-shadow:0 12px 25px #2d1b0918}.card .thumb{position:relative;display:grid;place-items:center;width:100%;aspect-ratio:1.25;font-size:clamp(2.8rem,8vw,4rem);line-height:1;background:#f2e8dc;overflow:hidden}.card .thumb img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}.card-body{padding:14px}.card h3{margin:0 0 9px}.card-tags{display:flex;gap:5px;flex-wrap:wrap}.tag{padding:4px 7px;border-radius:6px;color:#a04b0e;background:var(--pale);font-size:.72rem}
@@ -67,7 +69,7 @@ const menus=[
 const state={c:null,m:null,b:'any'},cards=document.querySelector('#cards'),modal=document.querySelector('#modal'),modalContent=document.querySelector('#modal-content');let shown=[],seen=[],exhausted=false,chosen,hasRecommended=false,lastSubmitted=null,shownWith=null;
 const mix=x=>{const a=[...x];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a},ok=(menu,keys)=>keys.every(k=>state[k]==='any'||menu[k].includes(state[k]));
 function three(){const exact=mix(menus.filter(x=>ok(x,['c','m','b']))),relaxed=mix(menus.filter(x=>ok(x,['c','m'])&&!exact.includes(x))),pool=exact.length>=3?exact:[...exact,...relaxed];const fresh=pool.filter(x=>!seen.includes(x));exhausted=seen.length>0&&fresh.length<3;let pick;if(fresh.length>=3){pick=fresh.slice(0,3)}else{pick=[...fresh,...seen.filter(x=>pool.includes(x))].slice(0,3);seen=seen.filter(x=>!pool.includes(x))}if(pick.length<3){const rest=menus.filter(x=>!pick.includes(x));pick=[...pick,...mix(rest.filter(x=>!seen.includes(x))),...mix(rest)].slice(0,3)}seen=[...seen,...pick.filter(x=>!seen.includes(x))];return pick}
-function showResults(){shown=three();shownWith=state.c+'|'+state.m+'|'+state.b;document.querySelector('#result-note').textContent=exhausted?'조건에 맞는 메뉴를 모두 보여드렸어요. 조건을 바꿔보세요.':'하나를 선택해보세요';cards.innerHTML=shown.map((x,i)=>`<button class="card" style="animation-delay:${i*.11}s" data-id="${x.id}"><div class="thumb" style="background:${x.bg}"><span aria-hidden="true">${x.emoji}</span><img alt="" data-ext="jpg" src="images/menu${String(x.id).padStart(2,'0')}.jpg" onerror="imgFallback(this)"></div><div class="card-body"><h3>${x.name}</h3><div class="card-tags">${x.tags.map(t=>`<span class="tag">#${t}</span>`).join('')}</div></div></button>`).join('');document.querySelector('#results').classList.remove('hidden');requestAnimationFrame(()=>document.querySelectorAll('.card').forEach(x=>x.classList.add('enter')));document.querySelector('#results').scrollIntoView({behavior:'smooth',block:'start'})}
+function showResults(){shown=three();shownWith=state.c+'|'+state.m+'|'+state.b;analytics.setNo+=1;track('recommend_view',{recommendation_set:shown.map(menu=>({id:menu.id,name:menu.name})),set_no:analytics.setNo});document.querySelector('#result-note').textContent=exhausted?'조건에 맞는 메뉴를 모두 보여드렸어요. 조건을 바꿔보세요.':'하나를 선택해보세요';cards.innerHTML=shown.map((x,i)=>`<button class="card" style="animation-delay:${i*.11}s" data-id="${x.id}"><div class="thumb" style="background:${x.bg}"><span aria-hidden="true">${x.emoji}</span><img alt="" data-ext="jpg" src="images/menu${String(x.id).padStart(2,'0')}.jpg" onerror="imgFallback(this)"></div><div class="card-body"><h3>${x.name}</h3><div class="card-tags">${x.tags.map(t=>`<span class="tag">#${t}</span>`).join('')}</div></div></button>`).join('');document.querySelector('#results').classList.remove('hidden');requestAnimationFrame(()=>document.querySelectorAll('.card').forEach(x=>x.classList.add('enter')));document.querySelector('#results').scrollIntoView({behavior:'smooth',block:'start'})}
 function conditionsReady(){return state.c!==null&&state.m!==null}
 function requestRecommendation(){if(!conditionsReady()){toast('\ub3d9\ud589\uacfc \ub290\ub08c\uc744 \uc120\ud0dd\ud574\uc8fc\uc138\uc694');return}if(!hasRecommended){hasRecommended=true;document.querySelector('#recommend').textContent='\ub2e4\uc2dc \ucd94\ucc9c\ubc1b\uae30';showResults();return}if(state.c+'|'+state.m+'|'+state.b!==shownWith){showResults();return}openReason()}
 function openReason(){modalContent.innerHTML=`<h2>\uc7ac\ucd94\ucc9c \uc774\uc720</h2><p>\uc65c \ub2e4\uc2dc \ucd94\ucc9c\ubc1b\uace0 \uc2f6\uc73c\uc2e0\uac00\uc694?</p><div class="feedback-row"><button class="feedback reason">\ucd94\ucc9c \uba54\ub274\uac00 \ubcc4\ub85c\uc5d0\uc694</button><button class="feedback reason">\uc608\uc0b0\uc774 \uc548 \ub9de\uc544\uc694</button><button class="feedback reason">\uc624\ub298 \uae30\ubd84\uc774 \uc544\ub2c8\uc5d0\uc694</button></div>`;openModal();document.querySelectorAll('.reason').forEach(button=>button.onclick=()=>{closeModal();setTimeout(showResults,230)})}
@@ -79,15 +81,41 @@ function resetFlow(){state.c=null;state.m=null;state.b='any';shown=[];seen=[];ex
 document.querySelector('#start').onclick=()=>{const a=document.querySelector('#start-screen'),b=document.querySelector('#recommend-screen');a.classList.add('screen-out');setTimeout(()=>{a.classList.add('hidden');b.classList.remove('hidden');b.classList.add('screen-in')},320)};document.querySelectorAll('.chips').forEach(g=>g.onclick=e=>{const b=e.target.closest('.chip');if(!b)return;state[g.dataset.key]=b.dataset.v;g.querySelectorAll('.chip').forEach(x=>x.classList.toggle('selected',x===b))});document.querySelector('#recommend').onclick=showResults;cards.onclick=e=>{const b=e.target.closest('.card');if(b)choose(shown.find(x=>x.id===+b.dataset.id))};modal.onclick=e=>{if(e.target===modal)closeModal()};
 const analytics={sessionId:null,startAt:null,setNo:0,rerollCount:0};
 function eventRow(event_type,fields={}){return {session_id:analytics.sessionId,event_type,timestamp:new Date().toISOString(),...fields}}
+// GA4 자동 수집 이벤트와 이름이 겹치면 커스텀 전송이 무시된다
+const GA_RESERVED = ['session_start','first_visit','first_open','user_engagement','error','in_app_purchase','app_update','os_update'];
 const DB_WRITE = !['localhost', '127.0.0.1', ''].includes(location.hostname);
 async function track(event_type, fields = {}) {
     const row = eventRow(event_type, fields);
-    if (!DB_WRITE) { console.log('[PickMeal dry-run]', row); return; }
+
+    // 로컬(localhost / file://)에서는 GA4 · Supabase 어느 쪽에도 보내지 않는다
+    if (!DB_WRITE) {
+        console.log('[PickMeal dry-run]', event_type, row);
+        return;
+    }
+
+    // =========================
+    // Google Analytics 4
+    // =========================
+    if (typeof gtag === 'function') {
+        const gaFields = { ...fields };
+        if (Array.isArray(gaFields.recommendation_set)) {
+            gaFields.recommendation_names = gaFields.recommendation_set.map(m => m.name).join(', ');
+            delete gaFields.recommendation_set; // 배열 데이터는 GA4에서 전송 제외
+        }
+        // GA4 예약 이벤트명은 커스텀 전송이 무시되므로 접두어를 붙인다.
+        // Supabase 에 저장되는 event_type 은 원래 이름 그대로다.
+        gtag('event', GA_RESERVED.includes(event_type) ? 'pm_' + event_type : event_type, gaFields);
+    }
+
+    // =========================
+    // Supabase
+    // =========================
+
     try {
         const { error } = await _supabase
             .from('pickmeal_events')
             .insert([row]);
-        
+
         if (error) throw error;
     } catch (error) {
         console.error('PickMeal event logging failed:', error);
@@ -96,8 +124,11 @@ async function track(event_type, fields = {}) {
 function newSessionId(){return crypto.randomUUID?crypto.randomUUID():Date.now().toString(36)+'-'+Math.random().toString(36).slice(2)}
 document.querySelector('#start').addEventListener('click',()=>{analytics.sessionId=newSessionId();analytics.startAt=Date.now();analytics.setNo=0;analytics.rerollCount=0;track('session_start')},{capture:true});
 document.querySelector('#recommend').addEventListener('click',()=>{if(!conditionsReady())return;const key=state.c+'|'+state.m+'|'+state.b;if(key===lastSubmitted)return;lastSubmitted=key;track('condition_submit',{companion:state.c,mood:state.m,budget:state.b})},{capture:true});
-const baseShowResults=showResults;showResults=function(){baseShowResults();analytics.setNo+=1;track('recommend_view',{recommendation_set:shown.map(menu=>({id:menu.id,name:menu.name})),set_no:analytics.setNo})};
-document.addEventListener('click',event=>{const reason=event.target.closest('.reason');if(reason){analytics.rerollCount+=1;track('reroll',{reroll_reason:reason.textContent,reroll_set_no:analytics.setNo})}const completeButton=event.target.closest('#complete');if(completeButton&&chosen&&analytics.startAt){track('menu_selected',{selected_menu:chosen.name,decision_sec:Math.round((Date.now()-analytics.startAt)/1000),reroll_count:analytics.rerollCount})}const feedbackButton=event.target.closest('.feedback:not(.reason)');if(feedbackButton){track('feedback_submit',{feedback:feedbackButton.dataset.f.charCodeAt(0)===47564?1:0})}},{capture:true});
+
+
+document.addEventListener('click',event=>{const reason=event.target.closest('.reason');if(reason){analytics.rerollCount+=1;track('reroll',{reroll_reason:reason.textContent,reroll_set_no:analytics.setNo})}const completeButton=event.target.closest('#complete');if(completeButton&&chosen&&analytics.startAt){track('menu_selected',{selected_menu:chosen.name,decision_sec:Math.round((Date.now()-analytics.startAt)/1000),reroll_count:analytics.rerollCount})}const feedbackButton=event.target.closest('.feedback:not(.reason)');if(feedbackButton){track('feedback_submit', {
+    feedback: feedbackButton.dataset.f === '만족' ? 1 : 0
+});}},{capture:true});
 document.querySelector('#recommend').onclick=requestRecommendation;
 document.addEventListener('click',event=>{if(!event.target.closest('#close'))return;const start=document.querySelector('#start-screen');start.classList.remove('screen-out');start.classList.add('screen-in')},{capture:true});
 </script></body></html>
